@@ -1,0 +1,36 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: vendor-authentication-service
+  
+  # H2 Database Configuration (Development)
+  datasource:
+    url: jdbc:h2:mem:vendorauth
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  # JPA Configuration
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  
+  # H2 Console (Development only)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# Logging Configuration
+logging:
+  level:
+    com.vendorauth: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
