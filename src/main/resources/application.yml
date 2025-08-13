@@ -5,28 +5,47 @@ spring:
   application:
     name: vendor-authentication-service
   
-  # H2 Database Configuration (Development)
+  # SQL Server Configuration
   datasource:
-    url: jdbc:h2:mem:vendorauth
-    driver-class-name: org.h2.Driver
+    url: jdbc:sqlserver://localhost:1433;databaseName=vendorauth;encrypt=true;trustServerCertificate=true;
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: sa
-    password: 
+    password: your_strong_password
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 10
   
-  # JPA Configuration
+  # JPA Configuration for SQL Server
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.SQLServer2016Dialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate  # Changed to validate to prevent accidental schema changes
+      show-sql: true
+      format_sql: true
     show-sql: true
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.SQLServer2016Dialect
         format_sql: true
-  
-  # H2 Console (Development only)
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+        jdbc:
+          batch_size: 100
+          fetch_size: 100
+          time_zone: UTC
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+      javax.persistence.schema-generation.database.action: none  # Disable Hibernate DDL generation
+      hibernate.hbm2ddl.auto: none  # Disable Hibernate DDL generation
+
+# JWT Configuration
+app:
+  jwt:
+    secret: ${JWT_SECRET:your-512-bit-secret-make-sure-to-change-this-in-production}
+    expiration: 86400000  # 24 hours in milliseconds
+    refresh-expiration: 604800000  # 7 days in milliseconds
+    issuer: vendor-auth-service
+    header: Authorization
+    token-prefix: "Bearer "
 
 # Logging Configuration
 logging:
@@ -34,3 +53,34 @@ logging:
     com.vendorauth: DEBUG
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
+    io.jsonwebtoken: WARN  # Reduce JWT library logging
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+      roles: ADMIN
+
+# Swagger Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    doc-expansion: none
+    display-request-duration: true
+    filter: true
+
+# Security Configuration
+security:
+  jwt:
+    secret: ${app.jwt.secret}
+    expiration: ${app.jwt.expiration}
+    refresh-expiration: ${app.jwt.refresh-expiration}

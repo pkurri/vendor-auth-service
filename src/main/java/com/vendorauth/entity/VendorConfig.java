@@ -17,7 +17,14 @@ import java.time.LocalDateTime;
  * to accommodate unknown or diverse vendor requirements.
  */
 @Entity
-@Table(name = "vendor_configs")
+@Table(name = "vendor_configs",
+    indexes = {
+        @Index(name = "idx_vendor_id", columnList = "vendor_id"),
+        @Index(name = "idx_vendor_active", columnList = "active")
+    },
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_vendor_id", columnNames = {"vendor_id"})
+    })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -59,7 +66,8 @@ public class VendorConfig {
      * - API Key: {"apiKeyHeader": "X-API-Key", "baseUrl": "https://api.vendor.com"}
      * - Basic Auth: {"baseUrl": "https://api.vendor.com", "realm": "VendorAPI"}
      */
-    @Column(columnDefinition = "TEXT")
+    @Lob
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String authDetailsJson;
     
     /**

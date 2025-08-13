@@ -34,12 +34,19 @@ dependencies {
     // Apache Shiro Security (updated to 2.x for better Java 17+ support)
     implementation 'org.apache.shiro:shiro-spring-boot-starter:2.0.0'
     
-    // Database
-    runtimeOnly 'com.h2database:h2'
+    // Database - SQL Server
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.6.1.jre11'
+    runtimeOnly 'org.hibernate.orm:hibernate-core:6.4.4.Final'
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
+    implementation 'org.glassfish.expressly:expressly:5.0.0'  // Required for Hibernate Validator EL
     
     // Lombok
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    
+    // Logging
+    implementation 'org.slf4j:slf4j-api:2.0.12'
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
     
     // JSON Processing
     implementation 'com.fasterxml.jackson.core:jackson-databind'
