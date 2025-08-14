@@ -2,6 +2,7 @@ package com.vendorauth.repository;
 
 import com.vendorauth.entity.VendorConfig;
 import com.vendorauth.enums.AuthType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -23,21 +24,40 @@ class VendorConfigRepositoryTest {
     @Autowired
     private VendorConfigRepository vendorConfigRepository;
 
+    private VendorConfig activeOauthVendor;
+    private VendorConfig inactiveOauthVendor;
+    private VendorConfig activeApiVendor;
+
+    @BeforeEach
+    void setUp() {
+        // Common test data setup
+        activeOauthVendor = createVendor("test-oauth-1", "OAuth Vendor 1", AuthType.OAUTH2, true);
+        inactiveOauthVendor = createVendor("test-oauth-2", "OAuth Vendor 2", AuthType.OAUTH2, false);
+        activeApiVendor = createVendor("test-api-1", "API Vendor 1", AuthType.API_KEY, true);
+        
+        entityManager.persist(activeOauthVendor);
+        entityManager.persist(inactiveOauthVendor);
+        entityManager.persist(activeApiVendor);
+        entityManager.flush();
+    }
+
+    private VendorConfig createVendor(String vendorId, String vendorName, AuthType authType, boolean active) {
+        return VendorConfig.builder()
+                .vendorId(vendorId)
+                .vendorName(vendorName)
+                .authType(authType)
+                .active(active)
+                .build();
+    }
+
     @Test
     void whenFindByVendorId_thenReturnVendorConfig() {
-        // given
-        VendorConfig vendor = new VendorConfig();
-        vendor.setVendorId("test-vendor-1");
-        vendor.setVendorName("Test Vendor");
-        vendor.setAuthType(AuthType.OAUTH2);
-        entityManager.persistAndFlush(vendor);
-
         // when
-        Optional<VendorConfig> found = vendorConfigRepository.findByVendorId(vendor.getVendorId());
+        Optional<VendorConfig> found = vendorConfigRepository.findByVendorId(activeOauthVendor.getVendorId());
 
         // then
         assertThat(found).isPresent();
-        assertThat(found.get().getVendorId()).isEqualTo(vendor.getVendorId());
+        assertThat(found.get().getVendorId()).isEqualTo(activeOauthVendor.getVendorId());
     }
 
     @Test
@@ -51,19 +71,6 @@ class VendorConfigRepositoryTest {
 
     @Test
     void whenFindByAuthType_thenReturnVendors() {
-        // given
-        VendorConfig vendor1 = new VendorConfig();
-        vendor1.setVendorId("test-vendor-1");
-        vendor1.setVendorName("Test Vendor 1");
-        vendor1.setAuthType(AuthType.OAUTH2);
-        entityManager.persistAndFlush(vendor1);
-
-        VendorConfig vendor2 = new VendorConfig();
-        vendor2.setVendorId("test-vendor-2");
-        vendor2.setVendorName("Test Vendor 2");
-        vendor2.setAuthType(AuthType.OAUTH2);
-        entityManager.persistAndFlush(vendor2);
-
         // when
         List<VendorConfig> found = vendorConfigRepository.findByAuthType(AuthType.OAUTH2);
 
@@ -73,42 +80,64 @@ class VendorConfigRepositoryTest {
     }
 
     @Test
+    void whenFindByAuthTypeAndActiveTrue_thenReturnActiveVendors() {
+        // when
+        List<VendorConfig> found = vendorConfigRepository.findByAuthTypeAndActiveTrue(AuthType.OAUTH2);
+
+        // then
+        assertThat(found).hasSize(1);
+        assertThat(found.get(0).getVendorId()).isEqualTo("test-oauth-1");
+        assertThat(found.get(0).isActive()).isTrue();
+    }
+
+    @Test
     void whenFindByActiveTrue_thenReturnActiveVendors() {
-        // given
-        VendorConfig activeVendor = new VendorConfig();
-        activeVendor.setVendorId("active-vendor");
-        activeVendor.setVendorName("Active Vendor");
-        activeVendor.setAuthType(AuthType.API_KEY);
-        activeVendor.setActive(true);
-        entityManager.persistAndFlush(activeVendor);
-
-        VendorConfig inactiveVendor = new VendorConfig();
-        inactiveVendor.setVendorId("inactive-vendor");
-        inactiveVendor.setVendorName("Inactive Vendor");
-        inactiveVendor.setAuthType(AuthType.API_KEY);
-        inactiveVendor.setActive(false);
-        entityManager.persistAndFlush(inactiveVendor);
-
         // when
         List<VendorConfig> found = vendorConfigRepository.findByActiveTrue();
 
         // then
-        assertThat(found).hasSize(1);
-        assertThat(found.get(0).isActive()).isTrue();
-        assertThat(found.get(0).getVendorId()).isEqualTo("active-vendor");
+        assertThat(found).hasSize(2);
+        assertThat(found).extracting(VendorConfig::isActive).containsOnly(true);
+        assertThat(found).extracting(VendorConfig::getVendorId)
+                .containsExactlyInAnyOrder("test-oauth-1", "test-api-1");
+    }
+
+    @Test
+    void whenExistsByVendorId_thenReturnTrue() {
+        // when
+        boolean exists = vendorConfigRepository.existsByVendorId(activeOauthVendor.getVendorId());
+
+        // then
+        assertThat(exists).isTrue();
+    }
+
+    @Test
+    void whenExistsByVendorId_thenReturnFalse() {
+        // when
+        boolean exists = vendorConfigRepository.existsByVendorId("non-existent-id");
+
+        // then
+        assertThat(exists).isFalse();
+    }
+
+    @Test
+    void whenFindByVendorNameContainingIgnoreCase_thenReturnMatchingVendors() {
+        // when
+        List<VendorConfig> found = vendorConfigRepository.findByVendorNameContainingIgnoreCase("oauth");
+
+        // then
+        assertThat(found).hasSize(2);
+        assertThat(found).extracting(VendorConfig::getVendorName)
+                .containsExactlyInAnyOrder("OAuth Vendor 1", "OAuth Vendor 2");
     }
 
     @Test
     void whenSaveVendor_thenVendorIsSaved() {
         // given
-        VendorConfig vendor = new VendorConfig();
-        vendor.setVendorId("new-vendor");
-        vendor.setVendorName("New Vendor");
-        vendor.setAuthType(AuthType.BASIC);
-        vendor.setActive(true);
+        VendorConfig newVendor = createVendor("new-vendor", "New Vendor", AuthType.BASIC, true);
 
         // when
-        VendorConfig saved = vendorConfigRepository.save(vendor);
+        VendorConfig saved = vendorConfigRepository.save(newVendor);
         Optional<VendorConfig> found = vendorConfigRepository.findById(saved.getId());
 
         // then
