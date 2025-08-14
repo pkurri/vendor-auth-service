@@ -63,6 +63,7 @@ public class ApiKeyAuthenticator implements VendorAuthenticator {
                         .vendorId(config.getVendorId())
                         .message("API key authentication successful")
                         .accessToken(request.getToken()) // Echo back the API key
+                        .timestamp(LocalDateTime.now())
                         .build();
             } else {
                 return AuthenticationResponse.failure(
