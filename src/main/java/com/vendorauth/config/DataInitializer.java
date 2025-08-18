@@ -31,17 +31,17 @@ public class DataInitializer implements CommandLineRunner {
     }
     
     private void createSampleVendorConfigs() {
-        // Sample NoOp vendor for testing
-        VendorConfig noopVendor = VendorConfig.builder()
+        // Sample Custom vendor for testing (placeholder for NoOp previously)
+        VendorConfig customVendor = VendorConfig.builder()
                 .vendorId("test-vendor")
-                .vendorName("Test Vendor (NoOp)")
-                .authType(AuthType.NOOP)
-                .authDetailsJson("{\"description\": \"No-operation test vendor\"}")
+                .vendorName("Test Vendor (Custom)")
+                .authType(AuthType.CUSTOM)
+                .authDetailsJson("{\"description\": \"Custom test vendor placeholder\"}")
                 .baseUrl("https://api.test-vendor.com")
-                .description("Test vendor using NoOp authenticator for development")
-                .active(true)
+                .description("Test vendor using Custom authenticator mapping")
+                .active(false)
                 .build();
-        vendorConfigRepository.save(noopVendor);
+        vendorConfigRepository.save(customVendor);
         
         // Sample OAuth2 vendor configuration (placeholder)
         VendorConfig oauth2Vendor = VendorConfig.builder()
@@ -81,7 +81,7 @@ public class DataInitializer implements CommandLineRunner {
         VendorConfig basicAuthVendor = VendorConfig.builder()
                 .vendorId("basic-auth-vendor")
                 .vendorName("Basic Auth Sample Vendor")
-                .authType(AuthType.BASIC_AUTH)
+                .authType(AuthType.BASIC)
                 .authDetailsJson("{\n" +
                         "  \"realm\": \"VendorAPI\",\n" +
                         "  \"encoding\": \"UTF-8\"\n" +
@@ -92,11 +92,11 @@ public class DataInitializer implements CommandLineRunner {
                 .build();
         vendorConfigRepository.save(basicAuthVendor);
         
-        // Sample JWT Token vendor configuration
+        // Sample JWT Token vendor configuration (mapped under CUSTOM)
         VendorConfig jwtVendor = VendorConfig.builder()
                 .vendorId("jwt-vendor")
                 .vendorName("JWT Token Sample Vendor")
-                .authType(AuthType.JWT_TOKEN)
+                .authType(AuthType.CUSTOM)
                 .authDetailsJson("{\n" +
                         "  \"secretKey\": \"my-super-secret-jwt-key-that-is-at-least-32-characters-long\",\n" +
                         "  \"issuer\": \"jwt-vendor\",\n" +

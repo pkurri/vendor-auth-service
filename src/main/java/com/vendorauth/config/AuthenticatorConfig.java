@@ -38,20 +38,17 @@ public class AuthenticatorConfig {
     public Map<AuthType, VendorAuthenticator> authenticators() {
         Map<AuthType, VendorAuthenticator> authenticators = new HashMap<>();
         
-        // Register NoOp authenticator
-        authenticators.put(AuthType.NOOP, applicationContext.getBean(NoOpAuthenticator.class));
-        
         // Register API Key authenticator
         authenticators.put(AuthType.API_KEY, applicationContext.getBean(ApiKeyAuthenticator.class));
-        
-        // Register JWT Token authenticator
-        authenticators.put(AuthType.JWT_TOKEN, applicationContext.getBean(JwtTokenAuthenticator.class));
         
         // Register OAuth2 authenticator
         authenticators.put(AuthType.OAUTH2, applicationContext.getBean(OAuth2Authenticator.class));
         
         // Register Basic Auth authenticator
-        authenticators.put(AuthType.BASIC_AUTH, applicationContext.getBean(BasicAuthAuthenticator.class));
+        authenticators.put(AuthType.BASIC, applicationContext.getBean(BasicAuthAuthenticator.class));
+
+        // Map CUSTOM to JwtTokenAuthenticator to support JWT-based vendors under CUSTOM type
+        authenticators.put(AuthType.CUSTOM, applicationContext.getBean(JwtTokenAuthenticator.class));
         
         return authenticators;
     }

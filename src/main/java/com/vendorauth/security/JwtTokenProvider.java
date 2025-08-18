@@ -100,6 +100,13 @@ public class JwtTokenProvider {
     }
 
     /**
+     * Convenience method to generate an access token for a plain subject (e.g., username).
+     */
+    public String generateToken(String subject) {
+        return generateAccessToken(subject, null);
+    }
+
+    /**
      * Validate the JWT token
      */
     public boolean validateToken(String token) {

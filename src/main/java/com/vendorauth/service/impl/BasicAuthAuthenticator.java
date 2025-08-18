@@ -1,6 +1,7 @@
 package com.vendorauth.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vendorauth.dto.AuthenticationRequest;
 import com.vendorauth.dto.AuthenticationResponse;
 import com.vendorauth.entity.VendorConfig;
@@ -25,11 +26,17 @@ import java.util.Map;
 public class BasicAuthAuthenticator implements VendorAuthenticator {
     
     private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public AuthenticationResponse authenticate(VendorConfig config, AuthenticationRequest request) {
         validateConfig(config);
-        JsonNode authDetails = config.getAuthDetailsJson();
+        JsonNode authDetails;
+        try {
+            authDetails = objectMapper.readTree(config.getAuthDetailsJson());
+        } catch (Exception e) {
+            throw new AuthenticationException("Invalid Basic Auth configuration JSON", "BASIC_AUTH_INVALID_JSON", e);
+        }
         
         try {
             String username = request.getUsername() != null ? 
@@ -95,7 +102,12 @@ public class BasicAuthAuthenticator implements VendorAuthenticator {
             throw new AuthenticationException("Invalid Basic Auth configuration", "BASIC_AUTH_INVALID_CONFIG");
         }
         
-        JsonNode authDetails = config.getAuthDetailsJson();
+        JsonNode authDetails;
+        try {
+            authDetails = objectMapper.readTree(config.getAuthDetailsJson());
+        } catch (Exception e) {
+            throw new AuthenticationException("Invalid Basic Auth configuration JSON", "BASIC_AUTH_INVALID_JSON", e);
+        }
         
         // Either credentials must be in config, or they must be provided in the request
         boolean hasConfigCredentials = authDetails.has("username") && authDetails.has("password");

@@ -3,7 +3,6 @@ package com.vendorauth.service.impl;
 import com.vendorauth.dto.AuthenticationRequest;
 import com.vendorauth.dto.AuthenticationResponse;
 import com.vendorauth.entity.VendorConfig;
-import com.vendorauth.enums.AuthType;
 import com.vendorauth.service.VendorAuthenticator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -44,7 +43,7 @@ public class NoOpAuthenticator implements VendorAuthenticator {
     @Override
     public boolean isConfigurationValid(VendorConfig config) {
         // NoOp authenticator doesn't require any specific configuration
-        return config != null && config.getAuthType() == AuthType.NOOP;
+        return config != null;
     }
     
     @Override
