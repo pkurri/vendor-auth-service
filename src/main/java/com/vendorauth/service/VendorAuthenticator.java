@@ -21,16 +21,16 @@ public interface VendorAuthenticator {
      * @param config The vendor configuration containing authentication details
      * @param request The authentication request with credentials/tokens
      * @return AuthenticationResponse indicating success/failure and any returned tokens
-     * @throws AuthenticationException if authentication fails due to technical issues
      */
     AuthenticationResponse authenticate(VendorConfig config, AuthenticationRequest request);
     
     /**
-     * Validates that the provided vendor configuration contains all required
-     * authentication details for this authenticator type.
+     * Validates if the provided vendor configuration is valid for this authenticator.
+     * This should check that all required fields are present and properly formatted
+     * for the specific authentication type.
      * 
      * @param config The vendor configuration to validate
-     * @return true if the configuration is valid for this authenticator
+     * @return true if the configuration is valid, false otherwise
      */
     boolean isConfigurationValid(VendorConfig config);
     
