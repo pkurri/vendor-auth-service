@@ -7,7 +7,6 @@ import io.jsonwebtoken.security.SignatureException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -70,7 +69,7 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void handleMethodNotSupported() {
-        HttpRequestMethodNotSupportedException ex = new HttpRequestMethodNotSupportedException(HttpMethod.POST, java.util.List.of());
+        HttpRequestMethodNotSupportedException ex = new HttpRequestMethodNotSupportedException("POST");
         ResponseEntity<ErrorResponse> response = exceptionHandler.handleMethodNotSupported(ex, webRequest);
         
         assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
