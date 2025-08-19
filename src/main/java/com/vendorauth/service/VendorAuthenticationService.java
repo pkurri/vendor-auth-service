@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
 
 /**
  * Core service for vendor authentication operations.
@@ -134,5 +135,42 @@ public class VendorAuthenticationService {
     public String getRequiredConfigurationDescription(AuthType authType) {
         VendorAuthenticator authenticator = authenticators.get(authType);
         return authenticator != null ? authenticator.getRequiredConfigurationDescription() : null;
+    }
+
+    // ------- Methods used by tests (simple repository delegations) -------
+    public List<VendorConfig> getAllVendors() {
+        return vendorConfigRepository.findAll();
+    }
+
+    public Optional<VendorConfig> getVendorById(Long id) {
+        return vendorConfigRepository.findById(id);
+    }
+
+    public Optional<VendorConfig> getVendorByVendorId(String vendorId) {
+        return vendorConfigRepository.findByVendorId(vendorId);
+    }
+
+    public VendorConfig createVendor(VendorConfig vendor) {
+        return vendorConfigRepository.save(vendor);
+    }
+
+    public Optional<VendorConfig> updateVendor(Long id, VendorConfig vendor) {
+        if (!vendorConfigRepository.existsById(id)) {
+            return Optional.empty();
+        }
+        vendor.setId(id);
+        return Optional.of(vendorConfigRepository.save(vendor));
+    }
+
+    public boolean deleteVendor(Long id) {
+        if (!vendorConfigRepository.existsById(id)) {
+            return false;
+        }
+        vendorConfigRepository.deleteById(id);
+        return true;
+    }
+
+    public List<VendorConfig> getVendorsByAuthType(AuthType authType) {
+        return vendorConfigRepository.findByAuthType(authType);
     }
 }

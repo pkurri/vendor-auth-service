@@ -221,4 +221,11 @@ public class JwtTokenProvider {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         return generateRefreshToken(userPrincipal.getUsername());
     }
+
+    /**
+     * Setter exposed for tests to override the secret.
+     */
+    public void setJwtSecret(String jwtSecret) {
+        this.jwtSecret = jwtSecret;
+    }
 }
