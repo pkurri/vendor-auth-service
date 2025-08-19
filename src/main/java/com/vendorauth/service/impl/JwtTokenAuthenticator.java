@@ -191,9 +191,9 @@ public class JwtTokenAuthenticator implements VendorAuthenticator {
             // Create secret key
             SecretKey key = getSigningKey(secretKey, algorithm);
             
-            // Build JWT parser
-            JwtParserBuilder parserBuilder = Jwts.parserBuilder()
-                    .setSigningKey(key);
+            // Build JWT parser (JJWT 0.12.x API)
+            JwtParserBuilder parserBuilder = Jwts.parser()
+                    .verifyWith(key);
             
             // Add validation rules based on configuration
             if (validateIssuer && authDetails.has("issuer")) {
@@ -207,8 +207,8 @@ public class JwtTokenAuthenticator implements VendorAuthenticator {
             JwtParser parser = parserBuilder.build();
             
             // Parse and validate token
-            Jws<Claims> jws = parser.parseClaimsJws(token);
-            Claims claims = jws.getBody();
+            Jws<Claims> jws = parser.parseSignedClaims(token);
+            Claims claims = jws.getPayload();
             
             // Manual expiration check if needed
             if (validateExpiration && claims.getExpiration() != null) {
@@ -231,11 +231,11 @@ public class JwtTokenAuthenticator implements VendorAuthenticator {
             // Get the signing key
             Key key = getSigningKey(secretKey, algorithm);
             
-            // Parse the token with the key
-            return Jwts.parserBuilder()
-                .setSigningKey(key)
+            // Parse the token with the key (JJWT 0.12.x API)
+            return Jwts.parser()
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token);
+                .parseSignedClaims(token);
                 
         } catch (ExpiredJwtException e) {
             log.warn("JWT token expired: {}", e.getMessage());

@@ -114,6 +114,14 @@ public class VendorConfig {
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
     
+    /**
+     * Explicit boolean-style accessor for the active flag to satisfy tests expecting isActive().
+     * Keeps the underlying field as Boolean for JPA/null-safety but exposes a primitive boolean.
+     */
+    public boolean isActive() {
+        return Boolean.TRUE.equals(this.active);
+    }
+
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();

@@ -30,10 +30,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         // For this example, we'll use a simple in-memory user
         // You should replace this with your actual user loading logic
         
-        // Check if vendor exists and is active
-        VendorConfig vendorConfig = vendorConfigRepository.findByVendorIdAndActive(vendorId, true)
-                .orElseThrow(() -> 
-                    new UsernameNotFoundException("Vendor not found with id: " + vendorId)
+        // Check if vendor exists and is active using available repository methods
+        VendorConfig vendorConfig = vendorConfigRepository.findByVendorId(vendorId)
+                .filter(cfg -> Boolean.TRUE.equals(cfg.getActive()))
+                .orElseThrow(() ->
+                    new UsernameNotFoundException("Vendor not found or inactive with id: " + vendorId)
                 );
         
         // In a real application, you would get the password from the vendor config

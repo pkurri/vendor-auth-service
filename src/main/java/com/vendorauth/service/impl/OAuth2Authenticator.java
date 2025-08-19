@@ -13,6 +13,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,18 +92,42 @@ public class OAuth2Authenticator implements VendorAuthenticator {
     }
     
     private AuthenticationResponse buildSuccessResponse(Map<String, Object> responseBody) {
-        Map<String, String> tokens = new HashMap<>();
-        responseBody.forEach((key, value) -> {
-            if (value != null) {
-                tokens.put(key, value.toString());
-            }
-        });
-        
+        String accessToken = firstNonNullString(responseBody, "access_token", "accessToken", "token");
+        String refreshToken = firstNonNullString(responseBody, "refresh_token", "refreshToken");
+        LocalDateTime tokenExpiry = extractExpiry(responseBody);
+
         return AuthenticationResponse.builder()
             .success(true)
             .message("Authentication successful")
-            .tokens(tokens)
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .tokenExpiry(tokenExpiry)
+            .additionalData(responseBody)
             .build();
+    }
+
+    private String firstNonNullString(Map<String, Object> map, String... keys) {
+        for (String k : keys) {
+            Object v = map.get(k);
+            if (v != null) {
+                String s = v.toString();
+                if (!s.isEmpty()) return s;
+            }
+        }
+        return null;
+    }
+
+    private LocalDateTime extractExpiry(Map<String, Object> map) {
+        // Common OAuth2 fields: expires_in (seconds), or absolute expiry times
+        Object expiresIn = map.get("expires_in");
+        if (expiresIn != null) {
+            try {
+                long seconds = Long.parseLong(expiresIn.toString());
+                return LocalDateTime.now().plusSeconds(seconds);
+            } catch (NumberFormatException ignored) { }
+        }
+        // Fallback: no expiry available
+        return null;
     }
 
     @Override

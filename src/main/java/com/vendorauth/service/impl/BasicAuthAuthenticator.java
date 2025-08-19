@@ -8,12 +8,12 @@ import com.vendorauth.entity.VendorConfig;
 import com.vendorauth.exception.AuthenticationException;
 import com.vendorauth.service.VendorAuthenticator;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,8 +78,7 @@ public class BasicAuthAuthenticator implements VendorAuthenticator {
     
     private HttpHeaders createBasicAuthHeaders(String username, String password) {
         String auth = username + ":" + password;
-        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.UTF_8));
-        String authHeader = "Basic " + new String(encodedAuth);
+        String authHeader = "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
         
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", authHeader);
