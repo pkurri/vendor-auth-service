@@ -1,12 +1,14 @@
 package com.vendorauth.repository;
 
+import com.vendorauth.config.TestMyBatisConfig;
 import com.vendorauth.entity.VendorConfig;
 import com.vendorauth.enums.AuthType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -14,12 +16,15 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+/**
+ * Integration tests for VendorConfigRepository using MyBatis.
+ * Tests use H2 in-memory database with SQL Server compatibility mode.
+ */
+@MybatisTest
+@Import(TestMyBatisConfig.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 class VendorConfigRepositoryTest {
-
-    @Autowired
-    private TestEntityManager entityManager;
 
     @Autowired
     private VendorConfigRepository vendorConfigRepository;
@@ -35,10 +40,9 @@ class VendorConfigRepositoryTest {
         inactiveOauthVendor = createVendor("test-oauth-2", "OAuth Vendor 2", AuthType.OAUTH2, false);
         activeApiVendor = createVendor("test-api-1", "API Vendor 1", AuthType.API_KEY, true);
         
-        entityManager.persist(activeOauthVendor);
-        entityManager.persist(inactiveOauthVendor);
-        entityManager.persist(activeApiVendor);
-        entityManager.flush();
+        vendorConfigRepository.save(activeOauthVendor);
+        vendorConfigRepository.save(inactiveOauthVendor);
+        vendorConfigRepository.save(activeApiVendor);
     }
 
     private VendorConfig createVendor(String vendorId, String vendorName, AuthType authType, boolean active) {

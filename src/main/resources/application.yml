@@ -15,27 +15,16 @@ spring:
       connection-timeout: 20000
       maximum-pool-size: 10
   
-  # JPA Configuration for SQL Server
-  jpa:
-    database-platform: org.hibernate.dialect.SQLServer2016Dialect
-    hibernate:
-      ddl-auto: validate  # Changed to validate to prevent accidental schema changes
-      show-sql: true
-      format_sql: true
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.SQLServer2016Dialect
-        format_sql: true
-        jdbc:
-          batch_size: 100
-          fetch_size: 100
-          time_zone: UTC
-        order_inserts: true
-        order_updates: true
-        batch_versioned_data: true
-      javax.persistence.schema-generation.database.action: none  # Disable Hibernate DDL generation
-      hibernate.hbm2ddl.auto: none  # Disable Hibernate DDL generation
+  # MyBatis Configuration
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.vendorauth.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 100
+    default-statement-timeout: 30
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  type-handlers-package: com.vendorauth.mybatis.typehandler
 
 # JWT Configuration
 app:
@@ -46,6 +35,17 @@ app:
     issuer: vendor-auth-service
     header: Authorization
     token-prefix: "Bearer "
+
+# Auth Signing Configuration (Keystore-based JWT signing)
+auth:
+  signing:
+    keystore: classpath:keystore/auth-jwt.p12
+    store-password: ${KEYSTORE_PASSWORD:changeit}
+    key-password: ${KEY_PASSWORD:changeit}
+    type: PKCS12
+    active-alias: auth-key
+    previous-alias: # Optional: for key rotation
+    kid: # Optional: override key ID
 
 # Logging Configuration
 logging:

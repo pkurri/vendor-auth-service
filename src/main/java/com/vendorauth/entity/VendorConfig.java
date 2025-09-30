@@ -1,7 +1,6 @@
 package com.vendorauth.entity;
 
 import com.vendorauth.enums.AuthType;
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -16,44 +15,29 @@ import java.time.LocalDateTime;
  * This flexible design allows storing various authentication details as JSON
  * to accommodate unknown or diverse vendor requirements.
  */
-@Entity
-@Table(name = "vendor_configs",
-    indexes = {
-        @Index(name = "idx_vendor_id", columnList = "vendor_id"),
-        @Index(name = "idx_vendor_active", columnList = "active")
-    },
-    uniqueConstraints = {
-        @UniqueConstraint(name = "uk_vendor_id", columnNames = {"vendor_id"})
-    })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class VendorConfig {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     /**
      * Unique identifier for the vendor
      */
-    @Column(unique = true, nullable = false)
     @NotBlank(message = "Vendor ID cannot be blank")
     private String vendorId;
     
     /**
      * Human-readable vendor name
      */
-    @Column(nullable = false)
     @NotBlank(message = "Vendor name cannot be blank")
     private String vendorName;
     
     /**
      * Type of authentication mechanism used by this vendor
      */
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     @NotNull(message = "Auth type cannot be null")
     private AuthType authType;
     
@@ -66,14 +50,11 @@ public class VendorConfig {
      * - API Key: {"apiKeyHeader": "X-API-Key", "baseUrl": "https://api.vendor.com"}
      * - Basic Auth: {"baseUrl": "https://api.vendor.com", "realm": "VendorAPI"}
      */
-    @Lob
-    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String authDetailsJson;
     
     /**
      * Whether this vendor configuration is currently active
      */
-    @Column(nullable = false)
     @Builder.Default
     private Boolean active = true;
     
@@ -97,33 +78,25 @@ public class VendorConfig {
     /**
      * Additional notes or description about this vendor
      */
-    @Column(length = 1000)
     private String description;
     
     /**
      * When this configuration was created
      */
-    @Column(nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
     
     /**
      * When this configuration was last updated
      */
-    @Column(nullable = false)
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
     
     /**
      * Explicit boolean-style accessor for the active flag to satisfy tests expecting isActive().
-     * Keeps the underlying field as Boolean for JPA/null-safety but exposes a primitive boolean.
+     * Keeps the underlying field as Boolean for null-safety but exposes a primitive boolean.
      */
     public boolean isActive() {
         return Boolean.TRUE.equals(this.active);
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 }

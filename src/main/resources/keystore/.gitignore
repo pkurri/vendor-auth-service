@@ -1,0 +1,8 @@
+# Ignore all keystore files
+*.p12
+*.jks
+*.pfx
+
+# Keep the README
+!README.md
+!.gitignore

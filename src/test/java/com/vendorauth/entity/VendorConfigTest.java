@@ -20,8 +20,8 @@ class VendorConfigTest {
         vendorConfig.setAuthType(AuthType.OAUTH2);
         vendorConfig.setActive(true);
         vendorConfig.setBaseUrl("https://api.testvendor.com");
-        vendorConfig.setTimeout(5000);
-        vendorConfig.setRetries(3);
+        vendorConfig.setTimeoutSeconds(30);
+        vendorConfig.setMaxRetries(3);
         vendorConfig.setDescription("Test vendor configuration");
         vendorConfig.setAuthDetailsJson("{'clientId': 'test-client-id'}");
         vendorConfig.setCreatedAt(now);
@@ -36,8 +36,8 @@ class VendorConfigTest {
         assertEquals(AuthType.OAUTH2, vendorConfig.getAuthType());
         assertTrue(vendorConfig.isActive());
         assertEquals("https://api.testvendor.com", vendorConfig.getBaseUrl());
-        assertEquals(5000, vendorConfig.getTimeout());
-        assertEquals(3, vendorConfig.getRetries());
+        assertEquals(30, vendorConfig.getTimeoutSeconds());
+        assertEquals(3, vendorConfig.getMaxRetries());
         assertEquals("Test vendor configuration", vendorConfig.getDescription());
         assertEquals("{'clientId': 'test-client-id'}", vendorConfig.getAuthDetailsJson());
         assertEquals(now, vendorConfig.getCreatedAt());
